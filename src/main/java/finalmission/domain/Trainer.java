@@ -32,4 +32,12 @@ public class Trainer {
     @OneToOne
     @JoinColumn(name = "gym_id")
     private Gym gym;
+
+    public Trainer(String name, int creditPrice, String description, String imageUrl, Gym gym) {
+        this.name = name;
+        this.creditPrice = creditPrice;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.gym = gym;
+    }
 }

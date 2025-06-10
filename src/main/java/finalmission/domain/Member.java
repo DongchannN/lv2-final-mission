@@ -4,8 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,6 +38,10 @@ public class Member {
     private String password;
 
     private int creditAmount;
+
+    @OneToOne
+    @JoinColumn(name = "gym_id")
+    private Gym gym;
 
     public Member(String name, String nickname, String phoneNumber, String password, int creditAmount) {
         this.name = name;

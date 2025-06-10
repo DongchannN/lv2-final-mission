@@ -22,4 +22,10 @@ public class Gym {
     private String location;
 
     private String phoneNumber;
+
+    public Gym(String name, String location, String phoneNumber) {
+        this.name = name;
+        this.location = location;
+        this.phoneNumber = phoneNumber;
+    }
 }
