@@ -5,6 +5,7 @@ import finalmission.controller.dto.SignupRequest;
 import finalmission.global.LoginMember;
 import finalmission.service.JwtService;
 import finalmission.service.MemberService;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,7 @@ public class MemberController {
     }
 
     @GetMapping("/api/member/test")
-    public ResponseEntity<String> test(LoginMember loginMember) {
+    public ResponseEntity<String> test(@Schema(hidden = true) LoginMember loginMember) {
         return ResponseEntity.ok(loginMember.id().toString());
     }
 }
