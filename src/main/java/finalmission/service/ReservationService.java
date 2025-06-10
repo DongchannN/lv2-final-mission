@@ -15,45 +15,47 @@ import finalmission.repository.TrainerScheduleRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final MemberService memberService;
-    private final GymRepository gymRepository;
-    private final TrainerRepository trainerRepository;
     private final TrainerScheduleRepository trainerScheduleRepository;
-
-    public ReservationService(ReservationRepository reservationRepository, MemberService memberService,
-                              GymRepository gymRepository, TrainerRepository trainerRepository,
-                              TrainerScheduleRepository trainerScheduleRepository) {
-        this.reservationRepository = reservationRepository;
-        this.memberService = memberService;
-        this.gymRepository = gymRepository;
-        this.trainerRepository = trainerRepository;
-        this.trainerScheduleRepository = trainerScheduleRepository;
-    }
+    private final GymService gymService;
+    private final TrainerService trainerService;
 
     public void addReservation(Long memberId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
-        final Member member = memberService.findMemberById(gymId);
-        final Gym gym = gymRepository.findById(gymId)
-                .orElseThrow(() -> new IllegalArgumentException("헬스장이 존재하지 않습니다."));
-        final Trainer trainer = trainerRepository.findById(trainerId)
-                .orElseThrow(() -> new IllegalArgumentException("트레이너가 존재하지 않습니다."));
-        // TODO: 예약에 대한 유효성 검사 필요
+        final Member member = memberService.findMemberById(memberId);
+        final Gym gym = gymService.getGymById(gymId);
+        final Trainer trainer = trainerService.getTrainerById(trainerId);
+        validateReservationInMine(date, time, gym, trainer, member);
+        validateReservedReservation(date, time, gym, trainer);
         final Reservation reservation = new Reservation(gym, member, trainer, date, time);
         reservationRepository.save(reservation);
+    }
+
+    private void validateReservationInMine(LocalDate date, LocalTime time, Gym gym, Trainer trainer, Member member) {
+        final boolean existsInMyReservations = reservationRepository.existsByGymAndTrainerAndDateAndTimeAndMemberNot(
+                gym,
+                trainer,
+                date,
+                time,
+                member
+        );
+        if (existsInMyReservations) {
+            throw new IllegalArgumentException("이미 예약한 시간입니다.");
+        }
     }
 
     public ReservationSlotsResponse getReservationSlotsByGymAndTrainerAndDate(Long gymId,
                                                                                  Long trainerId,
                                                                                  LocalDate date) {
-        final Gym gym = gymRepository.findById(gymId)
-                .orElseThrow(() -> new IllegalArgumentException("헬스장이 존재하지 않습니다."));
-        final Trainer trainer = trainerRepository.findById(trainerId)
-                .orElseThrow(() -> new IllegalArgumentException("트레이너가 존재하지 않습니다."));
+        final Gym gym = gymService.getGymById(gymId);
+        final Trainer trainer = trainerService.getTrainerById(trainerId);
         final List<LocalTime> schedules = trainerScheduleRepository.findTrainerSchedulesByTrainer(trainer).stream()
                 .map(TrainerSchedule::getTime)
                 .toList();
@@ -81,12 +83,22 @@ public class ReservationService {
 
     public void updateReservation(Long memberId, Long reservationId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
         final Reservation reservation = getValidReservation(memberId, reservationId);
-        // TODO : 예약 변경 전 이미 존재하는 예약인지 테스트
-        final Gym gym = gymRepository.findById(gymId)
-                .orElseThrow(() -> new IllegalArgumentException("헬스장이 존재하지 않습니다."));
-        final Trainer trainer = trainerRepository.findById(trainerId)
-                .orElseThrow(() -> new IllegalArgumentException("트레이너가 존재하지 않습니다."));
+        final Gym gym = gymService.getGymById(gymId);
+        final Trainer trainer = trainerService.getTrainerById(trainerId);
+        validateReservedReservation(date, time, gym, trainer);
         reservation.update(gym, trainer, date, time);
+    }
+
+    private void validateReservedReservation(LocalDate date, LocalTime time, Gym gym, Trainer trainer) {
+        final boolean existsReservation = reservationRepository.existsByGymAndTrainerAndDateAndTime(
+                gym,
+                trainer,
+                date,
+                time
+        );
+        if (existsReservation) {
+            throw new IllegalArgumentException("이미 예약된 시간입니다.");
+        }
     }
 
     private Reservation getValidReservation(Long memberId, Long reservationId) {

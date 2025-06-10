@@ -43,6 +43,12 @@ public class Reservation {
     }
 
     public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time) {
+        if (this.gym.getId().equals(gym.getId())
+                && this.trainer.getId().equals(trainer.getId())
+                && this.date.equals(date)
+                && this.time.equals(time)) {
+            throw new IllegalArgumentException("시간을 변경하지 않았습니다.");
+        }
         this.gym = gym;
         this.trainer = trainer;
         this.date = date;
