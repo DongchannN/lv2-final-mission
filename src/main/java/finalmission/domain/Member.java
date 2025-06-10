@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
  * 	- 비밀번호 (password)
  * 	- 속한 헬스장 (gym_id)
  */
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Member {
@@ -34,4 +37,16 @@ public class Member {
     private String password;
 
     private int creditAmount;
+
+    public Member(String name, String nickname, String phoneNumber, String password, int creditAmount) {
+        this.name = name;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.creditAmount = creditAmount;
+    }
+
+    public static Member createSignupMember(String name, String nickname, String phoneNumber, String password) {
+        return new Member(name, nickname, phoneNumber, password, 0);
+    }
 }
