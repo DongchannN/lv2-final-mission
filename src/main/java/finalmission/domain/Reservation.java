@@ -34,6 +34,14 @@ public class Reservation {
 
     private LocalTime time;
 
+    public Reservation(Gym gym, Member member, Trainer trainer, LocalDate date, LocalTime time) {
+        this.gym = gym;
+        this.member = member;
+        this.trainer = trainer;
+        this.date = date;
+        this.time = time;
+    }
+
     public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time) {
         this.gym = gym;
         this.trainer = trainer;

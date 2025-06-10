@@ -1,14 +1,17 @@
 package finalmission.service;
 
 import finalmission.controller.dto.ReservationResponse;
+import finalmission.controller.dto.ReservationSlotsResponse;
 import finalmission.controller.dto.ReservationsPreviewResponse;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
 import finalmission.domain.Trainer;
+import finalmission.domain.TrainerSchedule;
 import finalmission.repository.GymRepository;
 import finalmission.repository.ReservationRepository;
 import finalmission.repository.TrainerRepository;
+import finalmission.repository.TrainerScheduleRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,13 +24,43 @@ public class ReservationService {
     private final MemberService memberService;
     private final GymRepository gymRepository;
     private final TrainerRepository trainerRepository;
+    private final TrainerScheduleRepository trainerScheduleRepository;
 
     public ReservationService(ReservationRepository reservationRepository, MemberService memberService,
-                              GymRepository gymRepository, TrainerRepository trainerRepository) {
+                              GymRepository gymRepository, TrainerRepository trainerRepository,
+                              TrainerScheduleRepository trainerScheduleRepository) {
         this.reservationRepository = reservationRepository;
         this.memberService = memberService;
         this.gymRepository = gymRepository;
         this.trainerRepository = trainerRepository;
+        this.trainerScheduleRepository = trainerScheduleRepository;
+    }
+
+    public void addReservation(Long memberId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
+        final Member member = memberService.findMemberById(gymId);
+        final Gym gym = gymRepository.findById(gymId)
+                .orElseThrow(() -> new IllegalArgumentException("헬스장이 존재하지 않습니다."));
+        final Trainer trainer = trainerRepository.findById(trainerId)
+                .orElseThrow(() -> new IllegalArgumentException("트레이너가 존재하지 않습니다."));
+        // TODO: 예약에 대한 유효성 검사 필요
+        final Reservation reservation = new Reservation(gym, member, trainer, date, time);
+        reservationRepository.save(reservation);
+    }
+
+    public ReservationSlotsResponse getReservationSlotsByGymAndTrainerAndDate(Long gymId,
+                                                                                 Long trainerId,
+                                                                                 LocalDate date) {
+        final Gym gym = gymRepository.findById(gymId)
+                .orElseThrow(() -> new IllegalArgumentException("헬스장이 존재하지 않습니다."));
+        final Trainer trainer = trainerRepository.findById(trainerId)
+                .orElseThrow(() -> new IllegalArgumentException("트레이너가 존재하지 않습니다."));
+        final List<LocalTime> schedules = trainerScheduleRepository.findTrainerSchedulesByTrainer(trainer).stream()
+                .map(TrainerSchedule::getTime)
+                .toList();
+        final List<LocalTime> reserved = reservationRepository.findReservationsByGymAndTrainerAndDate(gym, trainer, date).stream()
+                .map(Reservation::getTime)
+                .toList();
+        return ReservationSlotsResponse.from(gym, trainer, schedules, reserved);
     }
 
     public ReservationsPreviewResponse getReservationsByMemberId(Long memberId) {
