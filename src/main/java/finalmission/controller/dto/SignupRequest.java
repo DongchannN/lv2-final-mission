@@ -4,6 +4,7 @@ public record SignupRequest(
         String name,
         String nickname,
         String phoneNumber,
-        String password
+        String password,
+        Long gymId
 ) {
 }

@@ -29,7 +29,8 @@ public class MemberController {
                 signupRequest.name(),
                 signupRequest.nickname(),
                 signupRequest.phoneNumber(),
-                signupRequest.password()
+                signupRequest.password(),
+                signupRequest.gymId()
         );
         return ResponseEntity.ok().build();
     }

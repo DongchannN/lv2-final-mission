@@ -43,7 +43,7 @@ public class Member {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
-    public Member(String name, String nickname, String phoneNumber, String password, int creditAmount) {
+    public Member(String name, String nickname, String phoneNumber, String password, int creditAmount, Gym gym) {
         this.name = name;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
@@ -51,7 +51,11 @@ public class Member {
         this.creditAmount = creditAmount;
     }
 
-    public static Member createSignupMember(String name, String nickname, String phoneNumber, String password) {
-        return new Member(name, nickname, phoneNumber, password, 0);
+    public static Member createSignupMember(String name, String nickname, String phoneNumber, String password, Gym gym) {
+        return new Member(name, nickname, phoneNumber, password, 0, gym);
+    }
+
+    public void decreaseCredit(int creditPrice) {
+        this.creditAmount -= creditPrice;
     }
 }
