@@ -6,16 +6,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/**
- *
- - 예약 (reservation)
- - 예약한 시간 (time)
- - 예약한 날짜 (date)
- - 예약한 선생 (trainer_id)
- - 예약한 회원 (member_id)
- - 예약한 헬스장 (gym_id)
- */
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Reservation {
 
@@ -37,4 +33,11 @@ public class Reservation {
     private LocalDate date;
 
     private LocalTime time;
+
+    public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time) {
+        this.gym = gym;
+        this.trainer = trainer;
+        this.date = date;
+        this.time = time;
+    }
 }
