@@ -28,7 +28,6 @@ public class MemberController {
     public ResponseEntity<Void> signup(@RequestBody SignupRequest signupRequest) {
         memberService.addMember(
                 signupRequest.name(),
-                signupRequest.nickname(),
                 signupRequest.phoneNumber(),
                 signupRequest.password(),
                 signupRequest.gymId()

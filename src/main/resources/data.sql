@@ -35,4 +35,4 @@ VALUES ('13:00', 1),
 INSERT INTO member(credit_amount, name, nickname, password, phone_number, gym_id)
 VALUES (1000, 'channie1', 'chan1', '1234', '01012341234', 1),
        (1000, 'channie2', 'chan2', '1234', '01012341235', 2),
-       (1000, 'channie3', 'chan3', '1234', '01012341236', 3),;
+       (1000, 'channie3', 'chan3', '1234', '01012341236', 3);

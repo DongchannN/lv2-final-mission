@@ -1,3 +1,8 @@
+randommer:
+  api-key: ${RANDOMMER_API_KEY}
+
+---
+
 spring:
   config:
     activate:
@@ -18,7 +23,7 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
-      dialect: org.hibernate.dialect.MySQL8InnoDBDialect
+      dialect: org.hibernate.dialect.MySQLDialect
     defer-datasource-initialization: true
 
 jwt:
@@ -30,6 +35,9 @@ spring:
   config:
     activate:
       on-profile: "test"
+  sql:
+    init:
+      mode: never
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:db;
@@ -43,7 +51,7 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
-      dialect: org.hibernate.dialect.H2Driver
+      dialect: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
 
 jwt:
