@@ -6,6 +6,7 @@ import finalmission.controller.dto.ReservationsPreviewResponse;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
+import finalmission.domain.ReservationStatus;
 import finalmission.domain.Trainer;
 import finalmission.domain.TrainerSchedule;
 import finalmission.repository.ReservationRepository;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,28 +28,33 @@ public class ReservationService {
     private final GymService gymService;
     private final TrainerService trainerService;
 
-    public void addReservation(Long memberId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
+    @Transactional
+    public Long addReservation(Long memberId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
         final Member member = memberService.findMemberById(memberId);
         final Gym gym = gymService.getGymById(gymId);
         final Trainer trainer = trainerService.getTrainerById(trainerId);
-        validateReservationInMine(date, time, gym, trainer, member);
-        validateReservedReservation(date, time, gym, trainer);
-        checkBalance(member, trainer.getCreditPrice());
-        final Reservation reservation = Reservation.createAcceptedReservation(gym, member, trainer, date, time);
-        reservationRepository.save(reservation);
-    }
+        final List<Reservation> reservations = reservationRepository.findReservationsByGymAndTrainerAndDateAndTime(gym, trainer, date, time);
 
-    private void validateReservationInMine(LocalDate date, LocalTime time, Gym gym, Trainer trainer, Member member) {
-        final boolean existsInMyReservations = reservationRepository.existsByGymAndTrainerAndDateAndTimeAndMemberNot(
-                gym,
-                trainer,
-                date,
-                time,
-                member
-        );
-        if (existsInMyReservations) {
+        final boolean alreadyReserved = reservations.stream()
+                .anyMatch(reservation -> reservation.getMember().getId().equals(memberId));
+        if (alreadyReserved) {
             throw new IllegalArgumentException("이미 예약한 시간입니다.");
         }
+        checkBalance(member, trainer.getCreditPrice());
+        return reservations.isEmpty() ?
+                addAcceptReservation(date, time, member, trainer, gym)
+                : addPendingReservation(date, time, member, trainer, gym);
+    }
+
+    private Long addAcceptReservation(LocalDate date, LocalTime time, Member member, Trainer trainer, Gym gym) {
+        member.decreaseCredit(trainer.getCreditPrice());
+        final Reservation reservation = Reservation.createAcceptedReservation(gym, member, trainer, date, time);
+        return reservationRepository.save(reservation).getId();
+    }
+
+    private Long addPendingReservation(LocalDate date, LocalTime time, Member member, Trainer trainer, Gym gym) {
+        final Reservation reservation = Reservation.createPendingReservation(gym, member, trainer, date, time);
+        return reservationRepository.save(reservation).getId();
     }
 
     public ReservationSlotsResponse getReservationSlotsByGymAndTrainerAndDate(Long gymId,
@@ -75,19 +82,37 @@ public class ReservationService {
         return ReservationResponse.from(reservation);
     }
 
+    @Transactional
     public void deleteReservation(Long memberId, Long reservationId) {
         final Reservation reservation = getValidReservation(memberId, reservationId);
         reservationRepository.delete(reservation);
+        if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
+            acceptTopReservation(reservation);
+        }
     }
 
+    private void acceptTopReservation(Reservation reservation) {
+        final Reservation topPendingReservation = reservationRepository.findFirstByGymAndTrainerAndDateAndTimeOrderById(
+                reservation.getGym(), reservation.getTrainer(), reservation.getDate(), reservation.getTime()
+        ).orElse(null);
+        if (topPendingReservation != null) {
+            topPendingReservation.accept();
+            topPendingReservation.getMember().decreaseCredit(topPendingReservation.getTrainer().getCreditPrice());
+        }
+    }
+
+    @Transactional
     public void updateReservation(Long memberId, Long reservationId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
         final Member member = memberService.findMemberById(memberId);
         final Reservation reservation = getValidReservation(memberId, reservationId);
         final Trainer beforeTrainer = reservation.getTrainer();
         final Gym gym = gymService.getGymById(gymId);
         final Trainer trainer = trainerService.getTrainerById(trainerId);
+
         final int creditDifference = trainer.getCreditPrice() - beforeTrainer.getCreditPrice();
         checkBalance(member, creditDifference);
+        member.decreaseCredit(creditDifference);
+
         validateReservedReservation(date, time, gym, trainer);
         reservation.update(gym, trainer, date, time);
     }
@@ -96,7 +121,6 @@ public class ReservationService {
         if (member.getCreditAmount() < creditDifference) {
             throw new IllegalArgumentException("잔고가 없습니다.");
         }
-        member.decreaseCredit(creditDifference);
     }
 
     private void validateReservedReservation(LocalDate date, LocalTime time, Gym gym, Trainer trainer) {

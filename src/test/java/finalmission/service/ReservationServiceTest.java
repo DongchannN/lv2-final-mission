@@ -18,6 +18,7 @@ import finalmission.repository.TrainerScheduleRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ class ReservationServiceTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    private LocalDate tommorrow;
     private Gym gym;
     private Trainer trainer;
     private Member member1;
@@ -71,23 +73,21 @@ class ReservationServiceTest {
         schedule2 = trainerScheduleRepository.save(new TrainerSchedule(trainer, time2));
         schedule3 = trainerScheduleRepository.save(new TrainerSchedule(trainer, time3));
 
+        tommorrow = LocalDate.now().plusDays(1);
         reservation1 = reservationRepository.save(
-                new Reservation(gym, member1, trainer, LocalDate.now().plusDays(1), time1, ReservationStatus.ACCEPTED)
+                new Reservation(gym, member1, trainer, tommorrow, time1, ReservationStatus.ACCEPTED)
         );
         reservation2 = reservationRepository.save(
-                new Reservation(gym, member1, trainer, LocalDate.now().plusDays(1), time3, ReservationStatus.ACCEPTED)
+                new Reservation(gym, member1, trainer, tommorrow, time3, ReservationStatus.ACCEPTED)
         );
         reservation3 = reservationRepository.save(
-                new Reservation(gym, member2, trainer, LocalDate.now().plusDays(1), time1, ReservationStatus.PENDING)
+                new Reservation(gym, member2, trainer, tommorrow, time1, ReservationStatus.PENDING)
         );
     }
 
     @Test
     @DisplayName("예약 조회 시 예약 슬롯들을 반환한다")
     void getReservationSlotsByGymAndTrainerAndDateTest() {
-        // given
-
-
         // when
         final ReservationSlotsResponse slots = reservationService.getReservationSlotsByGymAndTrainerAndDate(
                 gym.getId(), trainer.getId(), LocalDate.now().plusDays(1)
@@ -117,5 +117,48 @@ class ReservationServiceTest {
                         .get()
                         .waitCount()
         ).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("예약이 존재하지 않다면 바로 예약이 된다.")
+    void addReservationAcceptedTest() {
+        // when
+        final Long id = reservationService.addReservation(
+                member1.getId(), gym.getId(), trainer.getId(), tommorrow, schedule2.getTime()
+        );
+
+        // then
+        final Optional<Reservation> reservation = reservationRepository.findById(id);
+        assertThat(reservation).isPresent();
+        assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+        final Member member = memberRepository.findById(member1.getId()).orElseThrow();
+        assertThat(member.getCreditAmount()).isEqualTo(900);
+    }
+
+    @Test
+    @DisplayName("예약이 존재한다면 대기가 된다.")
+    void addReservationPendingTest() {
+        // when
+        final Long id = reservationService.addReservation(
+                member2.getId(), gym.getId(), trainer.getId(), tommorrow, schedule3.getTime()
+        );
+
+        // then
+        final Optional<Reservation> reservation = reservationRepository.findById(id);
+        assertThat(reservation).isPresent();
+        assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.PENDING);
+        final Member member = memberRepository.findById(member2.getId()).orElseThrow();
+        assertThat(member.getCreditAmount()).isEqualTo(1000);
+    }
+
+    @Test
+    @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
+    void deleteReservationAndAcceptNextReservationTest() {
+        // when
+        reservationService.deleteReservation(member1.getId(), reservation1.getId());
+
+        // then
+        final Reservation reservation = reservationRepository.findById(reservation3.getId()).orElseThrow();
+        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
     }
 }

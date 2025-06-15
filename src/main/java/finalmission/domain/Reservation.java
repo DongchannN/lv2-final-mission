@@ -68,4 +68,8 @@ public class Reservation {
         this.date = date;
         this.time = time;
     }
+
+    public void accept() {
+        this.status = ReservationStatus.ACCEPTED;
+    }
 }
