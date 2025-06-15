@@ -33,7 +33,7 @@ public class ReservationService {
         validateReservationInMine(date, time, gym, trainer, member);
         validateReservedReservation(date, time, gym, trainer);
         checkBalance(member, trainer.getCreditPrice());
-        final Reservation reservation = new Reservation(gym, member, trainer, date, time);
+        final Reservation reservation = Reservation.createAcceptedReservation(gym, member, trainer, date, time);
         reservationRepository.save(reservation);
     }
 

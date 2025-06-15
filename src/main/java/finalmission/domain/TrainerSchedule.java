@@ -25,4 +25,9 @@ public class TrainerSchedule {
     private Trainer trainer;
 
     private LocalTime time;
+
+    public TrainerSchedule(Trainer trainer, LocalTime time) {
+        this.trainer = trainer;
+        this.time = time;
+    }
 }

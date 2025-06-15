@@ -11,14 +11,17 @@ public record ReservationSlotsResponse(Long gymId, Long trainerId, List<Reservat
         final List<ReservationSlot> slots = times.stream().map(
                 time -> {
                     if (booked.contains(time)) {
-                        return new ReservationSlot(time, true);
+                        final long count = booked.stream()
+                                .filter(t -> t.equals(time))
+                                .count();
+                        return new ReservationSlot(time, Math.toIntExact(count));
                     }
-                    return new ReservationSlot(time, false);
+                    return new ReservationSlot(time, 0);
                 }
         ).toList();
         return new ReservationSlotsResponse(gym.getId(), trainer.getId(), slots);
     }
 
-    record ReservationSlot(LocalTime startAt, boolean isBooked) {
+    public record ReservationSlot(LocalTime startAt, int waitCount) {
     }
 }

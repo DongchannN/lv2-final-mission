@@ -1,6 +1,8 @@
 package finalmission.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Reservation {
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
 
@@ -34,12 +37,23 @@ public class Reservation {
 
     private LocalTime time;
 
-    public Reservation(Gym gym, Member member, Trainer trainer, LocalDate date, LocalTime time) {
+    private ReservationStatus status;
+
+    public Reservation(Gym gym, Member member, Trainer trainer, LocalDate date, LocalTime time, ReservationStatus reservationStatus) {
         this.gym = gym;
         this.member = member;
         this.trainer = trainer;
         this.date = date;
         this.time = time;
+        this.status = reservationStatus;
+    }
+
+    public static Reservation createAcceptedReservation(Gym gym, Member member, Trainer trainer, LocalDate date, LocalTime time) {
+        return new Reservation(gym, member, trainer, date, time, ReservationStatus.ACCEPTED);
+    }
+
+    public static Reservation createPendingReservation(Gym gym, Member member, Trainer trainer, LocalDate date, LocalTime time) {
+        return new Reservation(gym, member, trainer, date, time, ReservationStatus.PENDING);
     }
 
     public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time) {
