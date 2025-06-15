@@ -49,6 +49,7 @@ public class Member {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.creditAmount = creditAmount;
+        this.gym = gym;
     }
 
     public static Member createSignupMember(String name, String nickname, String phoneNumber, String password, Gym gym) {
@@ -57,5 +58,11 @@ public class Member {
 
     public void decreaseCredit(int creditPrice) {
         this.creditAmount -= creditPrice;
+    }
+
+    public void validateMemberGym(Gym gym) {
+        if (!this.gym.getId().equals(gym.getId())) {
+            throw new IllegalArgumentException("회원님의 헬스장이 아닙니다.");
+        }
     }
 }

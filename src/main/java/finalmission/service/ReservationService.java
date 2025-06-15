@@ -32,6 +32,7 @@ public class ReservationService {
     public Long addReservation(Long memberId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
         final Member member = memberService.findMemberById(memberId);
         final Gym gym = gymService.getGymById(gymId);
+        member.validateMemberGym(gym);
         final Trainer trainer = trainerService.getTrainerById(trainerId);
         final List<Reservation> reservations = reservationRepository.findReservationsByGymAndTrainerAndDateAndTime(gym, trainer, date, time);
 
@@ -104,9 +105,10 @@ public class ReservationService {
     @Transactional
     public void updateReservation(Long memberId, Long reservationId, Long gymId, Long trainerId, LocalDate date, LocalTime time) {
         final Member member = memberService.findMemberById(memberId);
+        final Gym gym = gymService.getGymById(gymId);
+        member.validateMemberGym(gym);
         final Reservation reservation = getValidReservation(memberId, reservationId);
         final Trainer beforeTrainer = reservation.getTrainer();
-        final Gym gym = gymService.getGymById(gymId);
         final Trainer trainer = trainerService.getTrainerById(trainerId);
 
         final int creditDifference = trainer.getCreditPrice() - beforeTrainer.getCreditPrice();
