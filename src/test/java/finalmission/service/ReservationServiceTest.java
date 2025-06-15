@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import finalmission.controller.dto.ReservationSlotsResponse;
 import finalmission.controller.dto.ReservationSlotsResponse.ReservationSlot;
+import finalmission.controller.dto.ReservationsPreviewResponse;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
@@ -160,5 +162,23 @@ class ReservationServiceTest {
         // then
         final Reservation reservation = reservationRepository.findById(reservation3.getId()).orElseThrow();
         assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+    }
+
+    @Test
+    @DisplayName("내 예약을 조회 할 수 있다")
+    void getMyReservationTest() {
+        // given
+        PageRequest first = PageRequest.of(0, 1);
+        PageRequest second = PageRequest.of(1, 1);
+
+        // when
+        final ReservationsPreviewResponse firstPage = reservationService.getReservationsByMemberId(member1.getId(), first);
+        final ReservationsPreviewResponse secondPage = reservationService.getReservationsByMemberId(member1.getId(), second);
+
+        // then
+        assertThat(firstPage.reservations()).hasSize(1);
+        assertThat(secondPage.reservations()).hasSize(1);
+        assertThat(firstPage.reservations().getFirst().reservationId()).isEqualTo(reservation1.getId());
+        assertThat(secondPage.reservations().getFirst().reservationId()).isEqualTo(reservation2.getId());
     }
 }

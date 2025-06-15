@@ -8,10 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findReservationsByMember(Member member);
+    List<Reservation> findReservationsByMember(Member member, Pageable pageable);
 
     List<Reservation> findReservationsByGymAndTrainerAndDate(Gym gym, Trainer trainer, LocalDate date);
 

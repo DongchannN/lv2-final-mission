@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,9 +73,9 @@ public class ReservationService {
         return ReservationSlotsResponse.from(gym, trainer, schedules, reserved);
     }
 
-    public ReservationsPreviewResponse getReservationsByMemberId(Long memberId) {
+    public ReservationsPreviewResponse getReservationsByMemberId(Long memberId, Pageable pageable) {
         final Member member = memberService.findMemberById(memberId);
-        final List<Reservation> reservationsByMember = reservationRepository.findReservationsByMember(member);
+        final List<Reservation> reservationsByMember = reservationRepository.findReservationsByMember(member, pageable);
         return ReservationsPreviewResponse.from(reservationsByMember);
     }
 

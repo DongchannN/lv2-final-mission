@@ -15,7 +15,7 @@ public record ReservationsPreviewResponse(List<ReservationPreviewSlot> reservati
         );
     }
 
-    record ReservationPreviewSlot(Long reservationId, LocalDate date, LocalTime time) {
+    public record ReservationPreviewSlot(Long reservationId, LocalDate date, LocalTime time) {
 
         public static ReservationPreviewSlot from(Reservation reservation) {
             return new ReservationPreviewSlot(

@@ -6,6 +6,7 @@ import finalmission.controller.dto.ReservationsPreviewResponse;
 import finalmission.global.LoginMember;
 import finalmission.service.ReservationService;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,8 @@ public class MemberReservationController {
     }
 
     @GetMapping("/api/members/reservations")
-    public ResponseEntity<ReservationsPreviewResponse> getMyReservations(@Schema(hidden = true) LoginMember loginMember) {
-        final ReservationsPreviewResponse myReservations = reservationService.getReservationsByMemberId(loginMember.id());
+    public ResponseEntity<ReservationsPreviewResponse> getMyReservations(@Schema(hidden = true) LoginMember loginMember, Pageable pageable) {
+        final ReservationsPreviewResponse myReservations = reservationService.getReservationsByMemberId(loginMember.id(), pageable);
         return ResponseEntity.ok(myReservations);
     }
 
