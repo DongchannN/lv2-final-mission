@@ -188,6 +188,17 @@ class ReservationServiceTest {
     }
 
     @Test
+    @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
+    void deleteReservationAndRefundTest() {
+        // when
+        reservationService.deleteReservation(member1.getId(), reservation1.getId());
+
+        // then
+        final Member member = memberRepository.findById(member1.getId()).orElseThrow();
+        assertThat(member.getCreditAmount()).isEqualTo(1100);
+    }
+
+    @Test
     @DisplayName("내 예약을 조회 할 수 있다")
     void getMyReservationsTest() {
         // given

@@ -60,6 +60,10 @@ public class Member {
         this.creditAmount -= creditPrice;
     }
 
+    public void increaseCredit(int creditPrice) {
+        this.creditAmount += creditPrice;
+    }
+
     public void validateMemberGym(Gym gym) {
         if (!this.gym.getId().equals(gym.getId())) {
             throw new IllegalArgumentException("회원님의 헬스장이 아닙니다.");

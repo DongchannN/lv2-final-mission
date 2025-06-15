@@ -84,6 +84,7 @@ public class ReservationService {
     @Transactional
     public void deleteReservation(Long memberId, Long reservationId) {
         final Reservation reservation = getValidReservation(memberId, reservationId);
+        reservation.refund();
         reservationRepository.delete(reservation);
         if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
             acceptTopReservation(reservation);
