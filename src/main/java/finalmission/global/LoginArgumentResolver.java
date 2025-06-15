@@ -29,15 +29,13 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String token = request.getHeader("Authorization");
-        if (token == null) {
+        String header = request.getHeader("Authorization");
+        if (header == null) {
             return null;
         }
-        final String substringed = token.substring(7);
-        System.out.println("substringed = " + substringed);
-        final String phoneNumber = jwtService.resolveToken(substringed);
-        System.out.println("phoneNumber = " + phoneNumber);
-        final Member member = memberService.findMemberByPhoneNumber(phoneNumber);
+        final String token = header.substring(7);
+        final Long memberId = jwtService.resolveToken(token, JwtService.PAYLOAD, Long.class);
+        final Member member = memberService.findMemberById(memberId);
         return new LoginMember(member.getId(), "ROLE_USER");
     }
 }

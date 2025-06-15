@@ -12,6 +12,8 @@ import org.springframework.web.client.RestClient;
 @Service
 public class MemberService {
 
+    public static final String RAMDOMMER_HEADER_KEY = "X-API-KEY";
+
     private final MemberRepository memberRepository;
     private final GymService gymService;
 
@@ -27,7 +29,7 @@ public class MemberService {
         RestClient restClient = RestClient.builder().build();
         final String[] body = restClient.get()
                 .uri("https://randommer.io/api/Name?nameType={type}&quantity={quantity}", "fullname", 1)
-                .header("X-API-KEY", randommorApiKey)
+                .header(RAMDOMMER_HEADER_KEY, randommorApiKey)
                 .retrieve()
                 .body(String[].class);
         if (body == null) {
@@ -38,11 +40,12 @@ public class MemberService {
         return memberRepository.save(signupMember).getId();
     }
 
-    public void authenticate(String phoneNumber, String password) {
+    public Long authenticate(String phoneNumber, String password) {
         final Member member = findMemberByPhoneNumber(phoneNumber);
         if (!member.getPassword().equals(password)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+        return member.getId();
     }
 
     public Member findMemberByPhoneNumber(String phoneNumber) {

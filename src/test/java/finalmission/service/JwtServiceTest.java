@@ -1,12 +1,10 @@
 package finalmission.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 class JwtServiceTest {
 
@@ -24,7 +22,7 @@ class JwtServiceTest {
         String payload = "hello";
 
         // when
-        final String token = jwtService.generateToken(payload);
+        final String token = jwtService.generateToken(payload, "ROLE_USER");
 
         // then
         assertThat(token.split("\\.")).hasSize(3);
@@ -35,10 +33,10 @@ class JwtServiceTest {
     void extractPayloadFromToken() {
         // given
         String payload = "hello";
-        final String token = jwtService.generateToken(payload);
+        final String token = jwtService.generateToken(payload, "ROLE_USER");
 
         // when
-        final String extracted = jwtService.resolveToken(token);
+        final String extracted = jwtService.resolveToken(token, JwtService.PAYLOAD, String.class);
 
         // then
         assertThat(extracted).isEqualTo(payload);

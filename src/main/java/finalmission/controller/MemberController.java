@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MemberController {
 
+    public static final String JWT_PREFIX = "Bearer ";
     private final MemberService memberService;
     private final JwtService jwtService;
 
@@ -37,9 +38,9 @@ public class MemberController {
 
     @PostMapping("/api/member/signin")
     public ResponseEntity<Void> login(@RequestBody SigninRequest signinRequest, HttpServletResponse response) {
-        memberService.authenticate(signinRequest.phoneNumber(), signinRequest.password());
-        final String token = jwtService.generateToken(signinRequest.phoneNumber());
-        response.setHeader("Authentication", "Bearer " + token);
+        final Long memberId = memberService.authenticate(signinRequest.phoneNumber(), signinRequest.password());
+        final String token = jwtService.generateToken(memberId.toString(), "ROLE_USER");
+        response.setHeader("Authentication", JWT_PREFIX + token);
         return ResponseEntity.ok().build();
     }
 

@@ -13,29 +13,34 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+    public static final String PAYLOAD = "payload";
+    public static final String ROLE = "role";
+
     private Key key;
 
     public JwtService(@Value("${jwt.secret}") String jwtSecret) {
         key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(String payload) {
+    public String generateToken(String payload, String role) {
+
         return Jwts.builder()
-                .claim("payload", payload)
+                .claim(PAYLOAD, payload)
+                .claim(ROLE, role)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24L))
                 .setIssuedAt((new Date()))
                 .signWith(key)
                 .compact();
     }
 
-    public String resolveToken(String token) {
+    public <T> T resolveToken(String token, String claimName, Class<T> requiredType) {
         Jws<Claims> jws;
         try {
             jws = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-            return jws.getBody().get("payload", String.class);
+            return jws.getBody().get(claimName, requiredType);
         }
         catch (JwtException ex) {
             throw new IllegalArgumentException("");
