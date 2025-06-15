@@ -56,7 +56,7 @@ public class Reservation {
         return new Reservation(gym, member, trainer, date, time, ReservationStatus.PENDING);
     }
 
-    public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time) {
+    public void update(Gym gym, Trainer trainer, LocalDate date, LocalTime time, ReservationStatus reservationStatus) {
         if (this.gym.getId().equals(gym.getId())
                 && this.trainer.getId().equals(trainer.getId())
                 && this.date.equals(date)
@@ -67,6 +67,11 @@ public class Reservation {
         this.trainer = trainer;
         this.date = date;
         this.time = time;
+        this.status = reservationStatus;
+    }
+
+    public int calculateTrainerCreditDifference(Trainer newTrainer) {
+        return newTrainer.getCreditPrice() - this.trainer.getCreditPrice();
     }
 
     public void accept() {

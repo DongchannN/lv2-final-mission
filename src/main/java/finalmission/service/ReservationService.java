@@ -35,13 +35,10 @@ public class ReservationService {
         final Gym gym = gymService.getGymById(gymId);
         member.validateMemberGym(gym);
         final Trainer trainer = trainerService.getTrainerById(trainerId);
-        final List<Reservation> reservations = reservationRepository.findReservationsByGymAndTrainerAndDateAndTime(gym, trainer, date, time);
 
-        final boolean alreadyReserved = reservations.stream()
-                .anyMatch(reservation -> reservation.getMember().getId().equals(memberId));
-        if (alreadyReserved) {
-            throw new IllegalArgumentException("이미 예약한 시간입니다.");
-        }
+        final List<Reservation> reservations = reservationRepository.findReservationsByGymAndTrainerAndDateAndTime(gym, trainer, date, time);
+        validateAlreadyReserved(memberId, reservations);
+
         checkBalance(member, trainer.getCreditPrice());
         return reservations.isEmpty() ?
                 addAcceptReservation(date, time, member, trainer, gym)
@@ -109,32 +106,33 @@ public class ReservationService {
         final Gym gym = gymService.getGymById(gymId);
         member.validateMemberGym(gym);
         final Reservation reservation = getValidReservation(memberId, reservationId);
-        final Trainer beforeTrainer = reservation.getTrainer();
         final Trainer trainer = trainerService.getTrainerById(trainerId);
 
-        final int creditDifference = trainer.getCreditPrice() - beforeTrainer.getCreditPrice();
-        checkBalance(member, creditDifference);
-        member.decreaseCredit(creditDifference);
+        final List<Reservation> reservations = reservationRepository.findReservationsByGymAndTrainerAndDateAndTime(gym, trainer, date, time);
+        validateAlreadyReserved(memberId, reservations);
 
-        validateReservedReservation(date, time, gym, trainer);
-        reservation.update(gym, trainer, date, time);
+        final int creditDifference = reservation.calculateTrainerCreditDifference(trainer);;
+        checkBalance(member, creditDifference);
+
+        if (reservations.isEmpty()) {
+            member.decreaseCredit(creditDifference);
+            reservation.update(gym, trainer, date, time, ReservationStatus.ACCEPTED);
+            return ;
+        }
+        reservation.update(gym, trainer, date, time, ReservationStatus.PENDING);
     }
 
-    private static void checkBalance(Member member, int creditDifference) {
-        if (member.getCreditAmount() < creditDifference) {
-            throw new IllegalArgumentException("잔고가 없습니다.");
+    private void validateAlreadyReserved(Long memberId, List<Reservation> reservations) {
+        final boolean alreadyReserved = reservations.stream()
+                .anyMatch(r -> r.getMember().getId().equals(memberId));
+        if (alreadyReserved) {
+            throw new IllegalArgumentException("이미 예약한 시간입니다.");
         }
     }
 
-    private void validateReservedReservation(LocalDate date, LocalTime time, Gym gym, Trainer trainer) {
-        final boolean existsReservation = reservationRepository.existsByGymAndTrainerAndDateAndTime(
-                gym,
-                trainer,
-                date,
-                time
-        );
-        if (existsReservation) {
-            throw new IllegalArgumentException("이미 예약된 시간입니다.");
+    private void checkBalance(Member member, int creditDifference) {
+        if (member.getCreditAmount() < creditDifference) {
+            throw new IllegalArgumentException("잔고가 없습니다.");
         }
     }
 
