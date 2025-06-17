@@ -30,4 +30,8 @@ public class TrainerSchedule {
         this.trainer = trainer;
         this.time = time;
     }
+
+    public void updateTime(LocalTime time) {
+        this.time = time;
+    }
 }
