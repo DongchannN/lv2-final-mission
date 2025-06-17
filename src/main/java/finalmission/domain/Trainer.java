@@ -46,4 +46,12 @@ public class Trainer {
             throw new IllegalArgumentException("트레이너 본인의 수업이 아닙니다.");
         }
     }
+
+    public void update(String name, int creditPrice, String description, String imageUrl, Gym gym) {
+        this.name = name;
+        this.creditPrice = creditPrice;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.gym = gym;
+    }
 }

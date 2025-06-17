@@ -2,10 +2,13 @@ package finalmission.controller;
 
 import finalmission.controller.dto.CreateTrainerScheduleRequest;
 import finalmission.controller.dto.TrainerLessonsResponse;
+import finalmission.controller.dto.TrainerResponse;
 import finalmission.controller.dto.TrainerSchedulesResponse;
+import finalmission.controller.dto.UpdateTrainerInfoRequest;
 import finalmission.controller.dto.UpdateTrainerScheduleRequest;
 import finalmission.service.ReservationService;
 import finalmission.service.TrainerScheduleService;
+import finalmission.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,7 @@ public class TrainerController {
 
     private final ReservationService reservationService;
     private final TrainerScheduleService trainerScheduleService;
+    private final TrainerService trainerService;
 
     @GetMapping("/{trainerId}/lessons")
     public TrainerLessonsResponse getTrainerLessons(@PathVariable Long trainerId) {
@@ -54,5 +58,22 @@ public class TrainerController {
                                @PathVariable Long scheduleId,
                                @RequestBody UpdateTrainerScheduleRequest scheduleRequest) {
         trainerScheduleService.updateTrainerSchedule(trainerId, scheduleId, scheduleRequest.time());
+    }
+
+    @GetMapping("/{trainerId}/mine")
+    public TrainerResponse myPage(@PathVariable Long trainerId) {
+        return trainerService.getTrainerInfoById(trainerId);
+    }
+
+    @PutMapping("/{trainerId}/mine")
+    public void updateMyInfo(@PathVariable Long trainerId, @RequestBody UpdateTrainerInfoRequest updateTrainerInfoRequest) {
+        trainerService.updateTrainer(
+                trainerId,
+                updateTrainerInfoRequest.name(),
+                updateTrainerInfoRequest.creditPrice(),
+                updateTrainerInfoRequest.description(),
+                updateTrainerInfoRequest.imageUrl(),
+                updateTrainerInfoRequest.gymId()
+        );
     }
 }
