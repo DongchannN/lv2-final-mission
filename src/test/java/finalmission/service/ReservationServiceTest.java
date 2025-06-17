@@ -7,6 +7,8 @@ import finalmission.controller.dto.ReservationResponse;
 import finalmission.controller.dto.ReservationSlotsResponse;
 import finalmission.controller.dto.ReservationSlotsResponse.ReservationSlot;
 import finalmission.controller.dto.ReservationsPreviewResponse;
+import finalmission.controller.dto.TrainerLessonsResponse;
+import finalmission.controller.dto.TrainerLessonsResponse.TrainerLesson;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -110,190 +113,237 @@ class ReservationServiceTest {
         );
     }
 
-    @Test
-    @DisplayName("예약 조회 시 예약 슬롯들을 반환한다")
-    void getReservationSlotsByGymAndTrainerAndDateTest() {
-        // when
-        final ReservationSlotsResponse slots = reservationService.getReservationSlotsByGymAndTrainerAndDate(
-                gym.getId(), trainer.getId(), LocalDate.now().plusDays(1)
-        );
+    @DisplayName("헬스장 회원 관련 테스트")
+    @Nested
+    class MemberTest {
 
-        // then
-        final List<ReservationSlot> reservations = slots.reservations();
-        assertThat(reservations).hasSize(3);
-        assertThat(
-                reservations.stream()
-                        .filter(reservationSlot -> reservationSlot.startAt().equals(schedule1.getTime()))
-                        .findFirst()
-                        .get()
-                        .waitCount()
-        ).isEqualTo(2);
-        assertThat(
-                reservations.stream()
-                        .filter(reservationSlot -> reservationSlot.startAt().equals(schedule2.getTime()))
-                        .findFirst()
-                        .get()
-                        .waitCount()
-        ).isEqualTo(0);
-        assertThat(
-                reservations.stream()
-                        .filter(reservationSlot -> reservationSlot.startAt().equals(schedule3.getTime()))
-                        .findFirst()
-                        .get()
-                        .waitCount()
-        ).isEqualTo(1);
+        @Test
+        @DisplayName("예약 조회 시 예약 슬롯들을 반환한다")
+        void getReservationSlotsByGymAndTrainerAndDateTest() {
+            // when
+            final ReservationSlotsResponse slots = reservationService.getReservationSlotsByGymAndTrainerAndDate(
+                    gym.getId(), trainer.getId(), LocalDate.now().plusDays(1)
+            );
+
+            // then
+            final List<ReservationSlot> reservations = slots.reservations();
+            assertThat(reservations).hasSize(3);
+            assertThat(
+                    reservations.stream()
+                            .filter(reservationSlot -> reservationSlot.startAt().equals(schedule1.getTime()))
+                            .findFirst()
+                            .get()
+                            .waitCount()
+            ).isEqualTo(2);
+            assertThat(
+                    reservations.stream()
+                            .filter(reservationSlot -> reservationSlot.startAt().equals(schedule2.getTime()))
+                            .findFirst()
+                            .get()
+                            .waitCount()
+            ).isEqualTo(0);
+            assertThat(
+                    reservations.stream()
+                            .filter(reservationSlot -> reservationSlot.startAt().equals(schedule3.getTime()))
+                            .findFirst()
+                            .get()
+                            .waitCount()
+            ).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("예약이 존재하지 않다면 바로 예약이 된다.")
+        void addReservationAcceptedTest() {
+            // when
+            final Long id = reservationService.addReservation(
+                    member1.getId(), gym.getId(), trainer.getId(), tommorrow, schedule2.getTime()
+            );
+
+            // then
+            final Optional<Reservation> reservation = reservationRepository.findById(id);
+            assertThat(reservation).isPresent();
+            assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+            final Member member = memberRepository.findById(member1.getId()).orElseThrow();
+            assertThat(member.getCreditAmount()).isEqualTo(900);
+        }
+
+        @Test
+        @DisplayName("예약이 존재한다면 대기가 된다.")
+        void addReservationPendingTest() {
+            // when
+            final Long id = reservationService.addReservation(
+                    member2.getId(), gym.getId(), trainer.getId(), tommorrow, schedule3.getTime()
+            );
+
+            // then
+            final Optional<Reservation> reservation = reservationRepository.findById(id);
+            assertThat(reservation).isPresent();
+            assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.PENDING);
+            final Member member = memberRepository.findById(member2.getId()).orElseThrow();
+            assertThat(member.getCreditAmount()).isEqualTo(1000);
+        }
+
+        @Test
+        @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
+        void deleteReservationAndAcceptNextReservationTest() {
+            // when
+            reservationService.deleteReservation(member1.getId(), reservation1.getId());
+
+            // then
+            final Reservation reservation = reservationRepository.findById(reservation3.getId()).orElseThrow();
+            assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+        }
+
+        @Test
+        @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
+        void deleteReservationAndRefundTest() {
+            // when
+            reservationService.deleteReservation(member1.getId(), reservation1.getId());
+
+            // then
+            final Member member = memberRepository.findById(member1.getId()).orElseThrow();
+            assertThat(member.getCreditAmount()).isEqualTo(1100);
+        }
+
+        @Test
+        @DisplayName("내 예약을 조회 할 수 있다")
+        void getMyReservationsTest() {
+            // given
+            PageRequest first = PageRequest.of(0, 1);
+            PageRequest second = PageRequest.of(1, 1);
+
+            // when
+            final ReservationsPreviewResponse firstPage = reservationService.getReservationsByMemberId(member1.getId(), first);
+            final ReservationsPreviewResponse secondPage = reservationService.getReservationsByMemberId(member1.getId(), second);
+
+            // then
+            assertThat(firstPage.reservations()).hasSize(1);
+            assertThat(secondPage.reservations()).hasSize(1);
+            assertThat(firstPage.reservations().getFirst().reservationId()).isEqualTo(reservation1.getId());
+            assertThat(secondPage.reservations().getFirst().reservationId()).isEqualTo(reservation2.getId());
+        }
+
+        @Test
+        @DisplayName("내 예약을 상세 조회할 수 있다.")
+        void getMyReservationTest() {
+            // given
+            Long memberId = member1.getId();
+            Long reservationId = reservation1.getId();
+
+            // when
+            final ReservationResponse reservation = reservationService.getReservation(memberId, reservationId);
+
+            // then
+            assertThat(reservation.date()).isEqualTo(reservation1.getDate());
+            assertThat(reservation.time()).isEqualTo(reservation1.getTime());
+            assertThat(reservation.gymName()).isEqualTo(reservation1.getGym().getName());
+            assertThat(reservation.trainerName()).isEqualTo(reservation1.getTrainer().getName());
+        }
+
+        @Test
+        @DisplayName("내 예약이 아니라면 예외가 발생한다.")
+        void getOtherReservationTest() {
+            // given
+            Long memberId = member1.getId();
+            Long reservationId = reservation3.getId();
+
+            // when, then
+            assertThatThrownBy(() -> reservationService.getReservation(memberId, reservationId))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("예약 수정 시 대기가 없다면 바로 등록하고 차액을 결재한다.")
+        void updateReservationAcceptedTest() {
+            // given
+            Long memberId = member1.getId();
+            Long reservationId = reservation1.getId();
+
+            // when
+            reservationService.updateReservation(memberId, reservationId, gym.getId(), cheapTrainer.getId(), tommorrow, cheapTrainerSchedule1.getTime());
+
+            // then
+            final Reservation reservation = reservationRepository.findById(reservationId).orElseThrow();
+            assertThat(reservation.getTrainer().getId()).isEqualTo(cheapTrainer.getId());
+            assertThat(reservation.getTime()).isEqualTo(cheapTrainerSchedule1.getTime());
+            assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+            assertThat(reservation.getMember().getCreditAmount()).isEqualTo(1050);
+        }
+
+        @Test
+        @DisplayName("예약 수정 시 대기가 있다면 대기를 등록한다 차액을 결재한다.")
+        void updateReservationPendingTest() {
+            // given
+            Long memberId = member2.getId();
+            Long reservationId = reservation3.getId();
+
+            final LocalTime time = cheapTrainerSchedule1.getTime();
+            final Long trainerId = cheapTrainer.getId();
+            reservationService.updateReservation(member1.getId(), reservation1.getId(), gym.getId(), trainerId, tommorrow, time);
+
+            // when
+            reservationService.updateReservation(memberId, reservationId, gym.getId(), trainerId, tommorrow, time);
+
+            // then
+            final Reservation reservation = reservationRepository.findById(reservationId).orElseThrow();
+            assertThat(reservation.getTrainer().getId()).isEqualTo(trainerId);
+            assertThat(reservation.getTime()).isEqualTo(time);
+            assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.PENDING);
+            assertThat(reservation.getMember().getCreditAmount()).isEqualTo(1000);
+        }
+
+        @Test
+        @DisplayName("잔고가 부족하면 예약 변경에 실패한다.")
+        void updateReservationExpensiveTest() {
+            // given
+            Long memberId = member1.getId();
+            Long reservationId = reservation1.getId();
+
+            // when, then
+            assertThatThrownBy(() -> reservationService.updateReservation(memberId, reservationId, gym.getId(), expensiveTrainer.getId(), tommorrow, expensiveTrainerSchedule1.getTime()))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
     }
 
-    @Test
-    @DisplayName("예약이 존재하지 않다면 바로 예약이 된다.")
-    void addReservationAcceptedTest() {
-        // when
-        final Long id = reservationService.addReservation(
-                member1.getId(), gym.getId(), trainer.getId(), tommorrow, schedule2.getTime()
-        );
+    @DisplayName("헬스장 트레이너 관련 테스트")
+    @Nested
+    class TrainerTest {
 
-        // then
-        final Optional<Reservation> reservation = reservationRepository.findById(id);
-        assertThat(reservation).isPresent();
-        assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
-        final Member member = memberRepository.findById(member1.getId()).orElseThrow();
-        assertThat(member.getCreditAmount()).isEqualTo(900);
-    }
+        @Test
+        @DisplayName("트레이너의 레슨(예약 확정된 예약)을 반환받는다.")
+        void getLessonsByTrainerIdTest() {
+            // given
+            final Long trainerId = trainer.getId();
 
-    @Test
-    @DisplayName("예약이 존재한다면 대기가 된다.")
-    void addReservationPendingTest() {
-        // when
-        final Long id = reservationService.addReservation(
-                member2.getId(), gym.getId(), trainer.getId(), tommorrow, schedule3.getTime()
-        );
+            // when
+            final TrainerLessonsResponse trainerLessons = reservationService.getLessonByTrainerId(trainerId);
 
-        // then
-        final Optional<Reservation> reservation = reservationRepository.findById(id);
-        assertThat(reservation).isPresent();
-        assertThat(reservation.get().getStatus()).isEqualTo(ReservationStatus.PENDING);
-        final Member member = memberRepository.findById(member2.getId()).orElseThrow();
-        assertThat(member.getCreditAmount()).isEqualTo(1000);
-    }
+            // then
+            assertThat(trainerLessons.lessons()).hasSize(2);
+            assertThat(trainerLessons.lessons()).contains(
+                    TrainerLesson.from(reservation1), TrainerLesson.from(reservation2)
+            );
+        }
 
-    @Test
-    @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
-    void deleteReservationAndAcceptNextReservationTest() {
-        // when
-        reservationService.deleteReservation(member1.getId(), reservation1.getId());
+        @Test
+        @DisplayName("트레이너 레슨 거절 테스트")
+        void denyLessonTest() {
+            // given
+            final Long trainerId = trainer.getId();
+            final Long reservationId = reservation1.getId();
 
-        // then
-        final Reservation reservation = reservationRepository.findById(reservation3.getId()).orElseThrow();
-        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
-    }
+            // when
+            reservationService.denyTrainerLesson(trainerId, reservationId);
 
-    @Test
-    @DisplayName("예약 삭제 시 다음 예약이 있다면 승급한다.")
-    void deleteReservationAndRefundTest() {
-        // when
-        reservationService.deleteReservation(member1.getId(), reservation1.getId());
+            // then
+            final TrainerLessonsResponse trainerLessons = reservationService.getLessonByTrainerId(trainerId);
+            final Reservation reservation = reservationRepository.findById(reservation3.getId()).orElseThrow();
 
-        // then
-        final Member member = memberRepository.findById(member1.getId()).orElseThrow();
-        assertThat(member.getCreditAmount()).isEqualTo(1100);
-    }
-
-    @Test
-    @DisplayName("내 예약을 조회 할 수 있다")
-    void getMyReservationsTest() {
-        // given
-        PageRequest first = PageRequest.of(0, 1);
-        PageRequest second = PageRequest.of(1, 1);
-
-        // when
-        final ReservationsPreviewResponse firstPage = reservationService.getReservationsByMemberId(member1.getId(), first);
-        final ReservationsPreviewResponse secondPage = reservationService.getReservationsByMemberId(member1.getId(), second);
-
-        // then
-        assertThat(firstPage.reservations()).hasSize(1);
-        assertThat(secondPage.reservations()).hasSize(1);
-        assertThat(firstPage.reservations().getFirst().reservationId()).isEqualTo(reservation1.getId());
-        assertThat(secondPage.reservations().getFirst().reservationId()).isEqualTo(reservation2.getId());
-    }
-
-    @Test
-    @DisplayName("내 예약을 상세 조회할 수 있다.")
-    void getMyReservationTest() {
-        // given
-        Long memberId = member1.getId();
-        Long reservationId = reservation1.getId();
-
-        // when
-        final ReservationResponse reservation = reservationService.getReservation(memberId, reservationId);
-
-        // then
-        assertThat(reservation.date()).isEqualTo(reservation1.getDate());
-        assertThat(reservation.time()).isEqualTo(reservation1.getTime());
-        assertThat(reservation.gymName()).isEqualTo(reservation1.getGym().getName());
-        assertThat(reservation.trainerName()).isEqualTo(reservation1.getTrainer().getName());
-    }
-
-    @Test
-    @DisplayName("내 예약이 아니라면 예외가 발생한다.")
-    void getOtherReservationTest() {
-        // given
-        Long memberId = member1.getId();
-        Long reservationId = reservation3.getId();
-
-        // when, then
-        assertThatThrownBy(() -> reservationService.getReservation(memberId, reservationId))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("예약 수정 시 대기가 없다면 바로 등록하고 차액을 결재한다.")
-    void updateReservationAcceptedTest() {
-        // given
-        Long memberId = member1.getId();
-        Long reservationId = reservation1.getId();
-
-        // when
-        reservationService.updateReservation(memberId, reservationId, gym.getId(), cheapTrainer.getId(), tommorrow, cheapTrainerSchedule1.getTime());
-
-        // then
-        final Reservation reservation = reservationRepository.findById(reservationId).orElseThrow();
-        assertThat(reservation.getTrainer().getId()).isEqualTo(cheapTrainer.getId());
-        assertThat(reservation.getTime()).isEqualTo(cheapTrainerSchedule1.getTime());
-        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
-        assertThat(reservation.getMember().getCreditAmount()).isEqualTo(1050);
-    }
-
-    @Test
-    @DisplayName("예약 수정 시 대기가 있다면 대기를 등록한다 차액을 결재한다.")
-    void updateReservationPendingTest() {
-        // given
-        Long memberId = member2.getId();
-        Long reservationId = reservation3.getId();
-
-        final LocalTime time = cheapTrainerSchedule1.getTime();
-        final Long trainerId = cheapTrainer.getId();
-        reservationService.updateReservation(member1.getId(), reservation1.getId(), gym.getId(), trainerId, tommorrow, time);
-
-        // when
-        reservationService.updateReservation(memberId, reservationId, gym.getId(), trainerId, tommorrow, time);
-
-        // then
-        final Reservation reservation = reservationRepository.findById(reservationId).orElseThrow();
-        assertThat(reservation.getTrainer().getId()).isEqualTo(trainerId);
-        assertThat(reservation.getTime()).isEqualTo(time);
-        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.PENDING);
-        assertThat(reservation.getMember().getCreditAmount()).isEqualTo(1000);
-    }
-
-    @Test
-    @DisplayName("잔고가 부족하면 예약 변경에 실패한다.")
-    void updateReservationExpensiveTest() {
-        // given
-        Long memberId = member1.getId();
-        Long reservationId = reservation1.getId();
-
-        // when, then
-        assertThatThrownBy(() -> reservationService.updateReservation(memberId, reservationId, gym.getId(), expensiveTrainer.getId(), tommorrow, expensiveTrainerSchedule1.getTime()))
-                .isInstanceOf(IllegalArgumentException.class);
+            assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.ACCEPTED);
+            assertThat(trainerLessons.lessons()).hasSize(2);
+            assertThat(trainerLessons.lessons()).contains(
+                    TrainerLesson.from(reservation2), TrainerLesson.from(reservation3)
+            );
+        }
     }
 }

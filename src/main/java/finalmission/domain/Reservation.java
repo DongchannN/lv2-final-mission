@@ -78,6 +78,10 @@ public class Reservation {
         this.status = ReservationStatus.ACCEPTED;
     }
 
+    public void deny() {
+        this.status = ReservationStatus.DENIED;
+    }
+
     public void refund() {
         this.member.increaseCredit(this.trainer.getCreditPrice());
     }

@@ -40,4 +40,10 @@ public class Trainer {
         this.imageUrl = imageUrl;
         this.gym = gym;
     }
+
+    public void validateMyLesson(Reservation lesson) {
+        if (!lesson.getTrainer().getId().equals(id)) {
+            throw new IllegalArgumentException("트레이너 본인의 수업이 아닙니다.");
+        }
+    }
 }

@@ -3,6 +3,8 @@ package finalmission.service;
 import finalmission.controller.dto.ReservationResponse;
 import finalmission.controller.dto.ReservationSlotsResponse;
 import finalmission.controller.dto.ReservationsPreviewResponse;
+import finalmission.controller.dto.TrainerLessonsResponse;
+import finalmission.controller.dto.TrainerLessonsResponse.TrainerLesson;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
@@ -76,6 +78,33 @@ public class ReservationService {
         return ReservationsPreviewResponse.from(reservationsByMember);
     }
 
+    public TrainerLessonsResponse getLessonByTrainerId(Long trainerId) {
+        final Trainer trainer = trainerService.getTrainerById(trainerId);
+
+        final List<TrainerLesson> lessons = reservationRepository.findReservationsByTrainerAndStatus(
+                trainer, ReservationStatus.ACCEPTED
+        ).stream()
+                .map(TrainerLesson::from)
+                .toList();
+        return new TrainerLessonsResponse(lessons);
+    }
+
+    @Transactional
+    public void denyTrainerLesson(Long trainerId, Long reservationId) {
+        final Trainer trainer = trainerService.getTrainerById(trainerId);
+        final Reservation lesson = reservationRepository.findById(reservationId).orElseThrow(() -> new IllegalArgumentException("존재하는 수업이 없습니다."));
+        trainer.validateMyLesson(lesson);
+        denyReservation(lesson);
+    }
+
+    private void denyReservation(Reservation reservation) {
+        if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
+            reservation.refund();
+            acceptTopPendingReservation(reservation);
+        }
+        reservation.deny();
+    }
+
     public ReservationResponse getReservation(Long memberId, Long reservationId) {
         final Reservation reservation = getValidReservation(memberId, reservationId);
         return ReservationResponse.from(reservation);
@@ -84,16 +113,16 @@ public class ReservationService {
     @Transactional
     public void deleteReservation(Long memberId, Long reservationId) {
         final Reservation reservation = getValidReservation(memberId, reservationId);
-        reservation.refund();
         reservationRepository.delete(reservation);
         if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
-            acceptTopReservation(reservation);
+            reservation.refund();
+            acceptTopPendingReservation(reservation);
         }
     }
 
-    private void acceptTopReservation(Reservation reservation) {
-        final Reservation topPendingReservation = reservationRepository.findFirstByGymAndTrainerAndDateAndTimeOrderById(
-                reservation.getGym(), reservation.getTrainer(), reservation.getDate(), reservation.getTime()
+    private void acceptTopPendingReservation(Reservation reservation) {
+        final Reservation topPendingReservation = reservationRepository.findFirstByGymAndTrainerAndDateAndTimeAndStatusOrderByIdAsc(
+                reservation.getGym(), reservation.getTrainer(), reservation.getDate(), reservation.getTime(), ReservationStatus.PENDING
         ).orElse(null);
         if (topPendingReservation != null) {
             topPendingReservation.accept();

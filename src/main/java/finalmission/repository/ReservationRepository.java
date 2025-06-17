@@ -3,6 +3,7 @@ package finalmission.repository;
 import finalmission.domain.Gym;
 import finalmission.domain.Member;
 import finalmission.domain.Reservation;
+import finalmission.domain.ReservationStatus;
 import finalmission.domain.Trainer;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,4 +24,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findReservationsByGymAndTrainerAndDateAndTime(Gym gym, Trainer trainer, LocalDate date, LocalTime time);
 
     Optional<Reservation> findFirstByGymAndTrainerAndDateAndTimeOrderById(Gym gym, Trainer trainer, LocalDate date, LocalTime time);
+
+    List<Reservation> findReservationsByTrainerAndStatus(Trainer trainer, ReservationStatus status);
+
+    Optional<Reservation> findFirstByGymAndTrainerAndDateAndTimeAndStatusOrderByIdAsc(Gym gym, Trainer trainer, LocalDate date, LocalTime time, ReservationStatus status);
 }
