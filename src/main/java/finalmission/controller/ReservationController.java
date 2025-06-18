@@ -2,7 +2,7 @@ package finalmission.controller;
 
 import finalmission.controller.dto.ReservationSlotsResponse;
 import finalmission.controller.dto.ReserveRequest;
-import finalmission.global.LoginMember;
+import finalmission.global.LoginUser;
 import finalmission.service.ReservationService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
@@ -26,7 +26,7 @@ public class ReservationController {
     public ResponseEntity<ReservationSlotsResponse> getReservationWithAvailability(@RequestParam(name = "gymId") Long gymId,
                                                                                    @RequestParam(name = "trainerId") Long trainerId,
                                                                                    @RequestParam(name = "date") LocalDate date,
-                                                                                   @Schema(hidden = true) LoginMember loginMember) {
+                                                                                   @Schema(hidden = true) LoginUser loginUser) {
         final ReservationSlotsResponse slots = reservationService.getReservationSlotsByGymAndTrainerAndDate(
                 gymId, trainerId, date
         );
@@ -34,9 +34,9 @@ public class ReservationController {
     }
 
     @PostMapping("/api/reservations")
-    public ResponseEntity<Void> reserve(@RequestBody ReserveRequest reserveRequest, @Schema(hidden = true) LoginMember loginMember) {
+    public ResponseEntity<Void> reserve(@RequestBody ReserveRequest reserveRequest, @Schema(hidden = true) LoginUser loginUser) {
         reservationService.addReservation(
-                loginMember.id(),
+                loginUser.id(),
                 reserveRequest.gymId(),
                 reserveRequest.trainerId(),
                 reserveRequest.date() ,

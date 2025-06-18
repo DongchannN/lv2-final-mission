@@ -2,7 +2,7 @@ package finalmission.controller;
 
 import finalmission.controller.dto.SigninRequest;
 import finalmission.controller.dto.SignupRequest;
-import finalmission.global.LoginMember;
+import finalmission.global.LoginUser;
 import finalmission.service.JwtService;
 import finalmission.service.MemberService;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,13 +39,13 @@ public class MemberController {
     @PostMapping("/api/member/signin")
     public ResponseEntity<Void> login(@RequestBody SigninRequest signinRequest, HttpServletResponse response) {
         final Long memberId = memberService.authenticate(signinRequest.phoneNumber(), signinRequest.password());
-        final String token = jwtService.generateToken(memberId.toString(), "ROLE_USER");
+        final String token = jwtService.generateToken(memberId.toString(), "ROLE_MEMBER");
         response.setHeader("Authentication", JWT_PREFIX + token);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/api/member/test")
-    public ResponseEntity<String> test(@Schema(hidden = true) LoginMember loginMember) {
-        return ResponseEntity.ok(loginMember.id().toString());
+    public ResponseEntity<String> test(@Schema(hidden = true) LoginUser loginUser) {
+        return ResponseEntity.ok(loginUser.id().toString());
     }
 }

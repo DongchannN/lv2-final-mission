@@ -22,7 +22,7 @@ class JwtServiceTest {
         String payload = "hello";
 
         // when
-        final String token = jwtService.generateToken(payload, "ROLE_USER");
+        final String token = jwtService.generateToken(payload, "ROLE_MEMBER");
 
         // then
         assertThat(token.split("\\.")).hasSize(3);
@@ -33,7 +33,7 @@ class JwtServiceTest {
     void extractPayloadFromToken() {
         // given
         String payload = "hello";
-        final String token = jwtService.generateToken(payload, "ROLE_USER");
+        final String token = jwtService.generateToken(payload, "ROLE_MEMBER");
 
         // when
         final String extracted = jwtService.resolveToken(token, JwtService.PAYLOAD, String.class);

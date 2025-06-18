@@ -40,9 +40,12 @@ public class JwtService {
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
+            final String string = jws.getBody().toString();
+            System.out.println("string = " + string);
             return jws.getBody().get(claimName, requiredType);
         }
         catch (JwtException ex) {
+            ex.printStackTrace();
             throw new IllegalArgumentException("");
         }
     }

@@ -3,7 +3,7 @@ package finalmission.controller;
 import finalmission.controller.dto.ReservationResponse;
 import finalmission.controller.dto.ReservationUpdateRequest;
 import finalmission.controller.dto.ReservationsPreviewResponse;
-import finalmission.global.LoginMember;
+import finalmission.global.LoginUser;
 import finalmission.service.ReservationService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Pageable;
@@ -25,29 +25,29 @@ public class MemberReservationController {
     }
 
     @GetMapping("/api/members/reservations")
-    public ResponseEntity<ReservationsPreviewResponse> getMyReservations(@Schema(hidden = true) LoginMember loginMember, Pageable pageable) {
-        final ReservationsPreviewResponse myReservations = reservationService.getReservationsByMemberId(loginMember.id(), pageable);
+    public ResponseEntity<ReservationsPreviewResponse> getMyReservations(@Schema(hidden = true) LoginUser loginUser, Pageable pageable) {
+        final ReservationsPreviewResponse myReservations = reservationService.getReservationsByMemberId(loginUser.id(), pageable);
         return ResponseEntity.ok(myReservations);
     }
 
     @GetMapping("/api/members/reservations/{reservationId}")
-    public ResponseEntity<ReservationResponse> getMyReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginMember loginMember) {
-        final ReservationResponse reservation = reservationService.getReservation(loginMember.id(), reservationId);
+    public ResponseEntity<ReservationResponse> getMyReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginUser loginUser) {
+        final ReservationResponse reservation = reservationService.getReservation(loginUser.id(), reservationId);
         return ResponseEntity.ok(reservation);
     }
 
     @DeleteMapping("/api/members/reservations/{reservationId}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginMember loginMember) {
-        reservationService.deleteReservation(loginMember.id(), reservationId);
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginUser loginUser) {
+        reservationService.deleteReservation(loginUser.id(), reservationId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/api/members/reservations/{reservationId}")
     public ResponseEntity<Void> updateReservation(@PathVariable Long reservationId,
                                                   @RequestBody ReservationUpdateRequest reservationUpdateRequest,
-                                                  @Schema(hidden = true) LoginMember loginMember) {
+                                                  @Schema(hidden = true) LoginUser loginUser) {
         reservationService.updateReservation(
-                loginMember.id(),
+                loginUser.id(),
                 reservationId,
                 reservationUpdateRequest.gymId(),
                 reservationUpdateRequest.trainerId(),

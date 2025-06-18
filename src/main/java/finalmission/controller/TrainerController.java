@@ -10,6 +10,7 @@ import finalmission.controller.dto.TrainerSchedulesResponse;
 import finalmission.controller.dto.TrainerSignupRequest;
 import finalmission.controller.dto.UpdateTrainerInfoRequest;
 import finalmission.controller.dto.UpdateTrainerScheduleRequest;
+import finalmission.global.LoginUser;
 import finalmission.service.JwtService;
 import finalmission.service.ReservationService;
 import finalmission.service.TrainerScheduleService;
@@ -36,41 +37,41 @@ public class TrainerController {
     private final TrainerService trainerService;
     private final JwtService jwtService;
 
-    @GetMapping("/{trainerId}/lessons")
-    public TrainerLessonsResponse getTrainerLessons(@PathVariable Long trainerId) {
-        return reservationService.getLessonByTrainerId(trainerId);
+    @GetMapping("/lessons")
+    public TrainerLessonsResponse getTrainerLessons(LoginUser loginUser) {
+        return reservationService.getLessonByTrainerId(loginUser.id());
     }
 
-    @DeleteMapping("/{trainerId}/lessons/{lessonId}")
-    public void denyLesson(@PathVariable Long trainerId, @PathVariable Long lessonId) {
-        reservationService.denyTrainerLesson(trainerId, lessonId);
+    @DeleteMapping("/lessons/{lessonId}")
+    public void denyLesson(LoginUser loginUser, @PathVariable Long lessonId) {
+        reservationService.denyTrainerLesson(loginUser.id(), lessonId);
     }
 
-    @GetMapping("/{trainerId}/times")
-    public TrainerSchedulesResponse getSchedules(@PathVariable Long trainerId) {
-        return trainerScheduleService.getTrainerSchedule(trainerId);
+    @GetMapping("/times")
+    public TrainerSchedulesResponse getSchedules(LoginUser loginUser) {
+        return trainerScheduleService.getTrainerSchedule(loginUser.id());
     }
 
-    @PostMapping("/{trainerId}/times")
-    public void addSchedule(@PathVariable Long trainerId, @RequestBody CreateTrainerScheduleRequest scheduleRequest) {
-        trainerScheduleService.addTrainerSchedule(trainerId, scheduleRequest.time());
+    @PostMapping("/times")
+    public void addSchedule(LoginUser loginUser, @RequestBody CreateTrainerScheduleRequest scheduleRequest) {
+        trainerScheduleService.addTrainerSchedule(loginUser.id(), scheduleRequest.time());
     }
 
-    @DeleteMapping("/{trainerId}/times/{scheduleId}")
-    public void deleteSchedule(@PathVariable Long trainerId, @PathVariable Long scheduleId) {
-        trainerScheduleService.deleteTrainerSchedule(trainerId, scheduleId);
+    @DeleteMapping("/times/{scheduleId}")
+    public void deleteSchedule(LoginUser loginUser, @PathVariable Long scheduleId) {
+        trainerScheduleService.deleteTrainerSchedule(loginUser.id(), scheduleId);
     }
 
-    @PutMapping("/{trainerId}/times/{scheduleId}")
-    public void updateSchedule(@PathVariable Long trainerId,
+    @PutMapping("/times/{scheduleId}")
+    public void updateSchedule(LoginUser loginUser,
                                @PathVariable Long scheduleId,
                                @RequestBody UpdateTrainerScheduleRequest scheduleRequest) {
-        trainerScheduleService.updateTrainerSchedule(trainerId, scheduleId, scheduleRequest.time());
+        trainerScheduleService.updateTrainerSchedule(loginUser.id(), scheduleId, scheduleRequest.time());
     }
 
-    @GetMapping("/{trainerId}/mine")
-    public TrainerResponse myPage(@PathVariable Long trainerId) {
-        return trainerService.getTrainerInfoById(trainerId);
+    @GetMapping("/mine")
+    public TrainerResponse myPage(LoginUser loginUser) {
+        return trainerService.getTrainerInfoById(loginUser.id());
     }
 
     @PutMapping("/{trainerId}/mine")
@@ -105,5 +106,10 @@ public class TrainerController {
                 trainerSignupRequest.imageUrl(),
                 trainerSignupRequest.gymId()
         );
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test(LoginUser loginUser) {
+        return ResponseEntity.ok(loginUser.id().toString());
     }
 }

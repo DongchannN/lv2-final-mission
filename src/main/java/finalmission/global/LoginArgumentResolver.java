@@ -1,11 +1,11 @@
 package finalmission.global;
 
-import finalmission.domain.Member;
 import finalmission.service.JwtService;
 import finalmission.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -20,7 +20,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterType().equals(LoginMember.class);
+        return parameter.getParameterType().equals(LoginUser.class);
     }
 
     @Override
@@ -28,14 +28,13 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String header = request.getHeader("Authorization");
-        if (header == null) {
-            return null;
+        final Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+        final String rawUserId = principal.getName();
+        try {
+            final long userId = Long.parseLong(rawUserId);
+            return new LoginUser(userId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("예기치 못한 예외가 발생했습니다.");
         }
-        final String token = header.substring(7);
-        final Long memberId = jwtService.resolveToken(token, JwtService.PAYLOAD, Long.class);
-        final Member member = memberService.findMemberById(memberId);
-        return new LoginMember(member.getId(), "ROLE_USER");
     }
 }
