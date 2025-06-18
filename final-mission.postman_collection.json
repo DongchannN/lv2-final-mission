@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "b0469ec3-c701-4a2a-9a3b-cc66425f366e",
+		"name": "final-mission",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23470147"
+	},
+	"item": [
+		{
+			"name": "member",
+			"item": [
+				{
+					"name": "로그인",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phoneNumber\": \"01012341234\",\n  \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/members/signin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "회원가입",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"사용자\",\n  \"phoneNumber\": \"01033333331\",\n  \"password\": \"1234\",\n  \"gymId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/members/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "자신의 예약 조회",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/members/reservations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"reservations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "자신의 단일 예약 조회",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/members/reservations/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"reservations",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "자신의 예약 삭제",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/members/reservations/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"reservations",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "자신의 예약 수정",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gymId\": 1,\n  \"trainerId\": 1,\n  \"date\": \"2024-06-29\",\n  \"time\": \"13:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/members/reservations/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"members",
+								"reservations",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "trainer",
+			"item": [
+				{
+					"name": "자신의 예약 조회",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/lessons",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"lessons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "로그인",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phoneNumber\": \"01011111112\",\n  \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/signin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "수업 취소",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/lessons/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"lessons",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "마이페이지",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/mine",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"mine"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "내 정보 수정",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"사용자\",\n  \"creditPrice\": 1,\n  \"description\": \"123\",\n  \"imageUrl\": \"123\",\n  \"gymId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/mine",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"mine"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "회원가입",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"선생님\",\n  \"phoneNumber\": \"00000000\",\n  \"password\": \"1234\",\n  \"creditPrice\": 100,\n  \"description\": \"123\",\n  \"imageUrl\": \"123\",\n  \"gymId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "일정 조회",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/times",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"times"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "일정 수정",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time\": \"13:59\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/times/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"times",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "일정 삭제",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/times/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"times",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "일정 등록",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX1RSQUlORVIiLCJleHAiOjE3NTAzNDQwODksImlhdCI6MTc1MDI1NzY4OX0.Op-gX1vj5e5ykdpy_bKpxpaxKZG3ynyvbz69DZZPQjkGhd1sfmQvASe1yirmWvqMWEJHZM0elCoBPHun5tfPAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time\": \"23:59\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/trainers/times",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"trainers",
+								"times"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "예약 등록",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gymId\": 1,\n  \"trainerId\": 1,\n  \"date\": \"2025-06-18\",\n  \"time\": \"13:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/reservations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"reservations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "예약 현황 조회",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJwYXlsb2FkIjoiMSIsInJvbGUiOiJST0xFX01FTUJFUiIsImV4cCI6MTc1MDM0MzM1OSwiaWF0IjoxNzUwMjU2OTU5fQ.xsA9l84bo6CQO6itNS5_UDqzV8zOMMvwiKHwZvvxFqfEztxtQ10dNsYj5fveRjx_xb3SGv8Gqq7UAs6zMWfALw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/reservations?gymId=1&trainerId=1&date=2025-06-18",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"reservations"
+					],
+					"query": [
+						{
+							"key": "gymId",
+							"value": "1"
+						},
+						{
+							"key": "trainerId",
+							"value": "1"
+						},
+						{
+							"key": "date",
+							"value": "2025-06-18"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
