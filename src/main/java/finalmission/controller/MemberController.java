@@ -11,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequestMapping("/api/members")
 @RestController
 public class MemberController {
 
@@ -25,7 +27,7 @@ public class MemberController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/api/member/signup")
+    @PostMapping("/signup")
     public ResponseEntity<Void> signup(@RequestBody SignupRequest signupRequest) {
         memberService.addMember(
                 signupRequest.name(),
@@ -36,7 +38,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/member/signin")
+    @PostMapping("/signin")
     public ResponseEntity<Void> login(@RequestBody SigninRequest signinRequest, HttpServletResponse response) {
         final Long memberId = memberService.authenticate(signinRequest.phoneNumber(), signinRequest.password());
         final String token = jwtService.generateToken(memberId.toString(), "ROLE_MEMBER");
@@ -44,7 +46,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/api/member/test")
+    @GetMapping("/test")
     public ResponseEntity<String> test(@Schema(hidden = true) LoginUser loginUser) {
         return ResponseEntity.ok(loginUser.id().toString());
     }

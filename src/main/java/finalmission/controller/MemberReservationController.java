@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequestMapping("/api/members/reservations")
 @RestController
 public class MemberReservationController {
 
@@ -24,25 +26,25 @@ public class MemberReservationController {
         this.reservationService = reservationService;
     }
 
-    @GetMapping("/api/members/reservations")
+    @GetMapping
     public ResponseEntity<ReservationsPreviewResponse> getMyReservations(@Schema(hidden = true) LoginUser loginUser, Pageable pageable) {
         final ReservationsPreviewResponse myReservations = reservationService.getReservationsByMemberId(loginUser.id(), pageable);
         return ResponseEntity.ok(myReservations);
     }
 
-    @GetMapping("/api/members/reservations/{reservationId}")
+    @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationResponse> getMyReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginUser loginUser) {
         final ReservationResponse reservation = reservationService.getReservation(loginUser.id(), reservationId);
         return ResponseEntity.ok(reservation);
     }
 
-    @DeleteMapping("/api/members/reservations/{reservationId}")
+    @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId, @Schema(hidden = true) LoginUser loginUser) {
         reservationService.deleteReservation(loginUser.id(), reservationId);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/api/members/reservations/{reservationId}")
+    @PatchMapping("/{reservationId}")
     public ResponseEntity<Void> updateReservation(@PathVariable Long reservationId,
                                                   @RequestBody ReservationUpdateRequest reservationUpdateRequest,
                                                   @Schema(hidden = true) LoginUser loginUser) {

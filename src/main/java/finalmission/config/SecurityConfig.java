@@ -23,8 +23,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                 authorize -> authorize
-                        .requestMatchers("/api/member/signin").permitAll()
-                        .requestMatchers("/api/member/**").hasRole("MEMBER")
+                        .requestMatchers("/api/members/signin").permitAll()
+                        .requestMatchers("/api/members/**").hasRole("MEMBER")
                         .requestMatchers("/api/trainers/**").hasRole("TRAINER")
                         .anyRequest().authenticated()
                 )
@@ -32,4 +32,3 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 }
-
