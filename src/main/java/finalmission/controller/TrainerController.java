@@ -74,11 +74,10 @@ public class TrainerController {
         return trainerService.getTrainerInfoById(loginUser.id());
     }
 
-    @PutMapping("/{trainerId}/mine")
-    public void updateMyInfo(@PathVariable Long trainerId,
-                             @RequestBody UpdateTrainerInfoRequest updateTrainerInfoRequest) {
+    @PutMapping("/mine")
+    public void updateMyInfo(@RequestBody UpdateTrainerInfoRequest updateTrainerInfoRequest, LoginUser loginUser) {
         trainerService.updateTrainer(
-                trainerId,
+                loginUser.id(),
                 updateTrainerInfoRequest.name(),
                 updateTrainerInfoRequest.creditPrice(),
                 updateTrainerInfoRequest.description(),
