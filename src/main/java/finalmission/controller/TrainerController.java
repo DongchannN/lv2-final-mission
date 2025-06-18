@@ -1,15 +1,22 @@
 package finalmission.controller;
 
+import static finalmission.controller.MemberController.JWT_PREFIX;
+
 import finalmission.controller.dto.CreateTrainerScheduleRequest;
+import finalmission.controller.dto.SigninRequest;
 import finalmission.controller.dto.TrainerLessonsResponse;
 import finalmission.controller.dto.TrainerResponse;
 import finalmission.controller.dto.TrainerSchedulesResponse;
+import finalmission.controller.dto.TrainerSignupRequest;
 import finalmission.controller.dto.UpdateTrainerInfoRequest;
 import finalmission.controller.dto.UpdateTrainerScheduleRequest;
+import finalmission.service.JwtService;
 import finalmission.service.ReservationService;
 import finalmission.service.TrainerScheduleService;
 import finalmission.service.TrainerService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +34,7 @@ public class TrainerController {
     private final ReservationService reservationService;
     private final TrainerScheduleService trainerScheduleService;
     private final TrainerService trainerService;
+    private final JwtService jwtService;
 
     @GetMapping("/{trainerId}/lessons")
     public TrainerLessonsResponse getTrainerLessons(@PathVariable Long trainerId) {
@@ -66,7 +74,8 @@ public class TrainerController {
     }
 
     @PutMapping("/{trainerId}/mine")
-    public void updateMyInfo(@PathVariable Long trainerId, @RequestBody UpdateTrainerInfoRequest updateTrainerInfoRequest) {
+    public void updateMyInfo(@PathVariable Long trainerId,
+                             @RequestBody UpdateTrainerInfoRequest updateTrainerInfoRequest) {
         trainerService.updateTrainer(
                 trainerId,
                 updateTrainerInfoRequest.name(),
@@ -74,6 +83,27 @@ public class TrainerController {
                 updateTrainerInfoRequest.description(),
                 updateTrainerInfoRequest.imageUrl(),
                 updateTrainerInfoRequest.gymId()
+        );
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<Void> login(@RequestBody SigninRequest signinRequest, HttpServletResponse response) {
+        final Long trainerId = trainerService.authenticate(signinRequest.phoneNumber(), signinRequest.password());
+        final String token = jwtService.generateToken(trainerId.toString(), "ROLE_TRAINER");
+        response.setHeader("Authentication", JWT_PREFIX + token);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/register")
+    public void register(@RequestBody TrainerSignupRequest trainerSignupRequest) {
+        trainerService.addTrainer(
+                trainerSignupRequest.name(),
+                trainerSignupRequest.phoneNumber(),
+                trainerSignupRequest.password(),
+                trainerSignupRequest.creditPrice(),
+                trainerSignupRequest.description(),
+                trainerSignupRequest.imageUrl(),
+                trainerSignupRequest.gymId()
         );
     }
 }

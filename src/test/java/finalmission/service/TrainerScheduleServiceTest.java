@@ -44,8 +44,8 @@ class TrainerScheduleServiceTest {
     @BeforeEach
     void setUp() {
         gym = gymRepository.save(new Gym("gym 1", "location 1", "01099999999"));
-        trainer1 = trainerRepository.save(new Trainer("trainer 1", 100, "description 1", "image 1", gym));
-        trainer2 = trainerRepository.save(new Trainer("trainer 2", 200, "description 2", "image 2", gym));
+        trainer1 = trainerRepository.save(new Trainer("trainer 1", "01011111111","1234", 100, "description 1", "image 1", gym));
+        trainer2 = trainerRepository.save(new Trainer("trainer 2", "01011111112","1234", 200, "description 2", "image 2", gym));
         final LocalTime now = LocalTime.now();
         time = LocalTime.of(now.getHour(), now.getMinute());
         trainerSchedule = trainerScheduleRepository.save(new TrainerSchedule(trainer1, time));

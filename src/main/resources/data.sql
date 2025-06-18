@@ -3,12 +3,12 @@ VALUES ('location1', 'name1', '01099999999'),
        ('location2', 'name2', '01099991111'),
        ('location33', 'name3', '01099992222');
 
-INSERT INTO trainer(credit_price, gym_id, description, image_url, name)
-VALUES (10, 1, 'description1', 'url1', 'name1'),
-       (20, 1, 'description2', 'url2', 'name2'),
-       (10, 2, 'description3', 'url3', 'name3'),
-       (20, 2, 'description4', 'url4', 'name4'),
-       (10, 3, 'description5', 'url5', 'name5');
+INSERT INTO trainer(credit_price, phone_number, password, gym_id, description, image_url, name)
+VALUES (10, '01011111112', '1234', 1, 'description1', 'url1', 'name1'),
+       (20, '01011111113', '1234', 1, 'description2', 'url2', 'name2'),
+       (10, '01011111114', '1234', 2, 'description3', 'url3', 'name3'),
+       (20, '01011111115', '1234', 2, 'description4', 'url4', 'name4'),
+       (10, '01011111116', '1234', 3, 'description5', 'url5', 'name5');
 
 INSERT INTO trainer_schedule(time, trainer_id)
 VALUES ('13:00', 1),

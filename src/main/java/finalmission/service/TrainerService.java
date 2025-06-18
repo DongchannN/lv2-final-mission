@@ -15,6 +15,24 @@ public class TrainerService {
     private final TrainerRepository trainerRepository;
     private final GymService gymService;
 
+    public Long authenticate(String phoneNumber, String password) {
+        final Trainer trainer = trainerRepository.findTrainerByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 트레이너입니다."));
+        if (!trainer.getPassword().equals(password)) {
+            throw new IllegalArgumentException("인증에 실패하였습니다.");
+        }
+        return trainer.getId();
+    }
+
+    public Long addTrainer(String name, String phoneNumber, String password, int creditPrice, String description, String imageUrl, Long gymId) {
+        final Gym gym = gymService.getGymById(gymId);
+        if (trainerRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
+        }
+        Trainer trainer = new Trainer(name, phoneNumber, password, creditPrice, description, imageUrl, gym);
+        return trainerRepository.save(trainer).getId();
+    }
+
     public TrainerResponse getTrainerInfoById(Long trainerId) {
         return TrainerResponse.from(getTrainerById(trainerId));
     }

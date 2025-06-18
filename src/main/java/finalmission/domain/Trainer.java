@@ -22,6 +22,10 @@ public class Trainer {
 
     private String name;
 
+    private String phoneNumber;
+
+    private String password;
+
     private int creditPrice;
 
     @Column(columnDefinition = "TEXT")
@@ -33,8 +37,10 @@ public class Trainer {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
-    public Trainer(String name, int creditPrice, String description, String imageUrl, Gym gym) {
+    public Trainer(String name, String phoneNumber, String password, int creditPrice, String description, String imageUrl, Gym gym) {
         this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
         this.creditPrice = creditPrice;
         this.description = description;
         this.imageUrl = imageUrl;

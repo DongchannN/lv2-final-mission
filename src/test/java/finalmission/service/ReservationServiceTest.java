@@ -86,9 +86,9 @@ class ReservationServiceTest {
         LocalTime time2 = LocalTime.of(now.getHour(), now.getMinute()).plusHours(2);
         LocalTime time3 = LocalTime.of(now.getHour(), now.getMinute()).plusHours(3);
         gym = gymRepository.save(new Gym("gym1", "location1", "01099999999"));
-        trainer = trainerRepository.save(new Trainer("trainer1", 100, "description1", "image1", gym));
-        cheapTrainer = trainerRepository.save(new Trainer("trainer2", 50, "description2", "image2", gym));
-        expensiveTrainer = trainerRepository.save(new Trainer("trainer3", 5000, "description3", "image3", gym));
+        trainer = trainerRepository.save(new Trainer("trainer1", "01011111112", "1234",100, "description1", "image1", gym));
+        cheapTrainer = trainerRepository.save(new Trainer("trainer2", "01011111113", "1234",50, "description2", "image2", gym));
+        expensiveTrainer = trainerRepository.save(new Trainer("trainer3", "01011111114", "1234",5000, "description3", "image3", gym));
         member1 = memberRepository.save(new Member("member1", "nickname1", "01011111111", "1234", 1000, gym));
         member2 = memberRepository.save(new Member("member2", "nickname2", "01022222222", "1234", 1000, gym));
         schedule1 = trainerScheduleRepository.save(new TrainerSchedule(trainer, time1));
